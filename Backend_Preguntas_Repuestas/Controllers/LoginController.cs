@@ -3,6 +3,7 @@ using Backend_Preguntas_Repuestas.Domain.models;
 using Backend_Preguntas_Repuestas.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +16,11 @@ namespace Backend_Preguntas_Repuestas.Controllers
     public class LoginController : ControllerBase
     {
         private readonly ILoginService _loginService;
-        public LoginController(ILoginService loginService)
+        private readonly IConfiguration _config;
+        public LoginController(ILoginService loginService, IConfiguration config)
         {
             _loginService = loginService;
+            _config = config;
         }
 
         [HttpPost]
@@ -32,8 +35,8 @@ namespace Backend_Preguntas_Repuestas.Controllers
                 {
                     return BadRequest(new { message = "Usuario o Contraseña invalidos"});
                 }
-
-                return Ok(new { usuario = user.NombreUsuario });
+                string tokenString = JwtConfigurator.GetToken(user, _config);
+                return Ok(new { token = tokenString });
             }
             catch (Exception ex)
             {
